@@ -6,6 +6,7 @@
  * Version: 0.1.0
  * Author: AdCore
  * Text Domain: adcore
+ * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) {
@@ -17,20 +18,13 @@ define('ADCORE_PLUGIN_FILE', __FILE__);
 define('ADCORE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('ADCORE_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-function adcore_register_ad_post_type() {
-    register_post_type('adcore_ad', [
-        'labels' => [
-            'name' => 'Ads',
-            'singular_name' => 'Ad',
-            'add_new_item' => 'Add New Ad',
-            'edit_item' => 'Edit Ad',
-        ],
-        'public' => false,
-        'show_ui' => true,
-        'show_in_menu' => true,
-        'menu_icon' => 'dashicons-megaphone',
-        'supports' => ['title'],
-        'capability_type' => 'post',
-    ]);
+require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore.php';
+
+function adcore(): AdCore {
+    return AdCore::instance();
 }
-add_action('init', 'adcore_register_ad_post_type');
+
+register_activation_hook(__FILE__, ['AdCore', 'activate']);
+register_deactivation_hook(__FILE__, ['AdCore', 'deactivate']);
+
+adcore();
