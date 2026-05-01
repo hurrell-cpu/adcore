@@ -43,15 +43,15 @@ final class AdCore_Shortcodes
             return '';
         }
 
-        shuffle($ad_ids);
+        $ad_ids = self::weighted_shuffle_ads($ad_ids);
 
-        foreach ($ad_ids as $ad_id) {
-            $output = AdCore_Renderer::render((int) $ad_id);
+foreach ($ad_ids as $ad_id) {
+    $output = AdCore_Renderer::render((int) $ad_id);
 
-            if ($output) {
-                return $output;
-            }
-        }
+    if ($output) {
+        return $output;
+    }
+}
 
         return '';
     }
@@ -87,5 +87,29 @@ final class AdCore_Shortcodes
         }
 
         return true;
+    }
+    private static function weighted_shuffle_ads(array $ad_ids): array
+    {
+        $weighted_pool = [];
+
+        foreach ($ad_ids as $ad_id) {
+            $weight = (int) get_post_meta($ad_id, '_adcore_ad_weight', true);
+
+            if ($weight < 1) {
+                $weight = 1;
+            }
+
+            if ($weight > 100) {
+                $weight = 100;
+            }
+
+            for ($i = 0; $i < $weight; $i++) {
+                $weighted_pool[] = $ad_id;
+            }
+        }
+
+        shuffle($weighted_pool);
+
+        return array_values(array_unique($weighted_pool));
     }
 }

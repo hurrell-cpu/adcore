@@ -29,6 +29,7 @@ final class AdCore_Ad_Meta_Box
         $status          = get_post_meta($post->ID, '_adcore_status', true) ?: 'active';
         $start_date      = get_post_meta($post->ID, '_adcore_start_date', true);
         $end_date        = get_post_meta($post->ID, '_adcore_end_date', true);
+        $ad_weight = get_post_meta($post->ID, '_adcore_ad_weight', true) ?: 1;
         ?>
 
         <style>
@@ -116,6 +117,20 @@ final class AdCore_Ad_Meta_Box
                 <option value="paused" <?php selected($status, 'paused'); ?>>Paused</option>
             </select>
         </div>
+
+        <div class="adcore-field">
+    <label for="adcore_ad_weight"><?php esc_html_e('Rotation Weight', 'adcore'); ?></label>
+    <input
+        type="number"
+        id="adcore_ad_weight"
+        name="adcore_ad_weight"
+        value="<?php echo esc_attr($ad_weight); ?>"
+        min="1"
+        max="100"
+        step="1"
+    />
+    <p class="adcore-help">Higher numbers make this ad appear more often in rotating placements.</p>
+</div>
 
         <div class="adcore-field">
             <label for="adcore_start_date"><?php esc_html_e('Start Date', 'adcore'); ?></label>
@@ -212,6 +227,12 @@ final class AdCore_Ad_Meta_Box
         }
 
         update_post_meta($post_id, '_adcore_ad_size', $ad_size);
+
+        $ad_weight = isset($_POST['adcore_ad_weight'])
+    ? max(1, min(100, absint($_POST['adcore_ad_weight'])))
+    : 1;
+
+update_post_meta($post_id, '_adcore_ad_weight', $ad_weight);
 
         update_post_meta(
             $post_id,
