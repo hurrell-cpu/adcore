@@ -21,6 +21,7 @@ final class AdCore_Renderer
         }
 
         $type            = get_post_meta($ad_id, '_adcore_ad_type', true) ?: 'image';
+        $ad_size         = get_post_meta($ad_id, '_adcore_ad_size', true) ?: 'fluid';
         $image_url       = get_post_meta($ad_id, '_adcore_image_url', true);
         $html_code       = get_post_meta($ad_id, '_adcore_html_code', true);
         $destination_url = get_post_meta($ad_id, '_adcore_destination_url', true);
@@ -39,12 +40,19 @@ final class AdCore_Renderer
     return '';
         }
 
-        return sprintf(
-            '<div class="adcore-ad adcore-ad-%d" data-adcore-ad-id="%d">%s</div>',
-            esc_attr($ad_id),
-            esc_attr($ad_id),
-            $output
-        );
+        $allowed_sizes = ['fluid', 'leaderboard', 'medium-rectangle', 'large-mobile'];
+
+if (!in_array($ad_size, $allowed_sizes, true)) {
+    $ad_size = 'fluid';
+}
+
+return sprintf(
+    '<div class="adcore-ad adcore-ad-%d adcore-ad-size-%s" data-adcore-ad-id="%d"><div class="adcore-ad-inner">%s</div></div>',
+    esc_attr($ad_id),
+    esc_attr($ad_size),
+    esc_attr($ad_id),
+    $output
+);
     }
 
     private static function render_image_ad(string $image_url, string $destination_url, int $ad_id): string

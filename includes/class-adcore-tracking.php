@@ -16,21 +16,28 @@ final class AdCore_Tracking
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_scripts']);
     }
 
-    public static function enqueue_scripts(): void
-    {
-        wp_enqueue_script(
-            'adcore-frontend',
-            ADCORE_PLUGIN_URL . 'assets/js/adcore-frontend.js',
-            [],
-            ADCORE_VERSION,
-            true
-        );
+   public static function enqueue_scripts(): void
+{
+    wp_enqueue_style(
+        'adcore-frontend',
+        ADCORE_PLUGIN_URL . 'assets/css/adcore-frontend.css',
+        [],
+        ADCORE_VERSION
+    );
 
-        wp_localize_script('adcore-frontend', 'adcoreFrontend', [
-            'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce'   => wp_create_nonce('adcore_impression_nonce'),
-        ]);
-    }
+    wp_enqueue_script(
+        'adcore-frontend',
+        ADCORE_PLUGIN_URL . 'assets/js/adcore-frontend.js',
+        [],
+        ADCORE_VERSION,
+        true
+    );
+
+    wp_localize_script('adcore-frontend', 'adcoreFrontend', [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('adcore_impression_nonce'),
+    ]);
+}
 
     public static function ajax_record_impression(): void
     {

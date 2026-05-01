@@ -66,6 +66,17 @@ final class AdCore_Ad_Meta_Box
         </div>
 
         <div class="adcore-field">
+            <label for="adcore_ad_size"><?php esc_html_e('Ad Size', 'adcore'); ?></label>
+            <select id="adcore_ad_size" name="adcore_ad_size">
+                <option value="fluid" <?php selected($ad_size, 'fluid'); ?>>Fluid / Responsive</option>
+                <option value="leaderboard" <?php selected($ad_size, 'leaderboard'); ?>>Leaderboard — 728x90</option>
+                <option value="medium-rectangle" <?php selected($ad_size, 'medium-rectangle'); ?>>Medium Rectangle — 300x250</option>
+                <option value="large-mobile" <?php selected($ad_size, 'large-mobile'); ?>>Large Mobile — 320x100</option>
+            </select>
+            <p class="adcore-help">Used to reserve space and reduce layout shift.</p>
+        </div>
+
+        <div class="adcore-field">
             <label for="adcore_image_url"><?php esc_html_e('Image URL', 'adcore'); ?></label>
             <input
                 type="url"
@@ -191,6 +202,16 @@ final class AdCore_Ad_Meta_Box
         }
 
         update_post_meta($post_id, '_adcore_ad_type', $ad_type);
+
+        $ad_size = isset($_POST['adcore_ad_size'])
+            ? sanitize_key(wp_unslash($_POST['adcore_ad_size']))
+            : 'fluid';
+
+        if (!in_array($ad_size, ['fluid', 'leaderboard', 'medium-rectangle', 'large-mobile'], true)) {
+            $ad_size = 'fluid';
+        }
+
+        update_post_meta($post_id, '_adcore_ad_size', $ad_size);
 
         update_post_meta(
             $post_id,
