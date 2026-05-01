@@ -38,7 +38,7 @@ final class AdCore
     require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-placement-meta-box.php';
 
     require_once ADCORE_PLUGIN_DIR . 'includes/admin/class-adcore-dashboard.php';
-
+    require_once ADCORE_PLUGIN_DIR . 'includes/admin/class-adcore-ad-list-columns.php';
 }
 
    private function init_hooks(): void
@@ -48,6 +48,7 @@ final class AdCore
     add_action('init', ['AdCore_Tracking', 'init']);
 
     add_action('admin_menu', ['AdCore_Dashboard', 'register_menu']);
+    add_action('admin_init', ['AdCore_Ad_List_Columns', 'init']);
 
     add_action('add_meta_boxes_adcore_ad', ['AdCore_Ad_Meta_Box', 'add']);
     add_action('save_post_adcore_ad', ['AdCore_Ad_Meta_Box', 'save']);
@@ -56,6 +57,7 @@ final class AdCore
     add_action('save_post_adcore_placement', ['AdCore_Placement_Meta_Box', 'save']);
 
     add_action('wp', ['AdCore_Content_Inserter', 'init']);
+    
 }
 
     public function register_post_types(): void
