@@ -22,7 +22,12 @@ final class AdCore_Placement_Meta_Box
     {
         wp_nonce_field('adcore_save_placement_settings', 'adcore_placement_settings_nonce');
 
-        $selected_ad_id   = (int) get_post_meta($post->ID, '_adcore_placement_ad_id', true);
+        $selected_ad_ids = get_post_meta($post->ID, '_adcore_placement_ad_ids', true);
+
+        if (!is_array($selected_ad_ids)) {
+            $legacy_ad_id = (int) get_post_meta($post->ID, '_adcore_placement_ad_id', true);
+            $selected_ad_ids = $legacy_ad_id ? [$legacy_ad_id] : [];
+        }
         $auto_insert      = get_post_meta($post->ID, '_adcore_auto_insert', true) ?: 'no';
         $insert_position  = get_post_meta($post->ID, '_adcore_insert_position', true) ?: 'after_paragraph';
         $paragraph_number = get_post_meta($post->ID, '_adcore_paragraph_number', true) ?: 2;
@@ -39,19 +44,29 @@ final class AdCore_Placement_Meta_Box
         ?>
 
         <p>
-            <label for="adcore_placement_ad_id"><strong><?php esc_html_e('Ad to Display', 'adcore'); ?></strong></label>
-            <br><br>
+    <label for="adcore_placement_ad_ids">
+        <strong><?php esc_html_e('Ads to Rotate', 'adcore'); ?></strong>
+    </label>
+    <br><br>
 
-            <select id="adcore_placement_ad_id" name="adcore_placement_ad_id" style="width:100%;max-width:720px;">
-                <option value="0"><?php esc_html_e('Select an ad', 'adcore'); ?></option>
+    <select
+        id="adcore_placement_ad_ids"
+        name="adcore_placement_ad_ids[]"
+        multiple
+        size="8"
+        style="width:100%;max-width:720px;"
+    >
+        <?php foreach ($ads as $ad): ?>
+            <option value="<?php echo esc_attr($ad->ID); ?>" <?php selected(in_array($ad->ID, $selected_ad_ids, true)); ?>>
+                <?php echo esc_html($ad->post_title); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
 
-                <?php foreach ($ads as $ad): ?>
-                    <option value="<?php echo esc_attr($ad->ID); ?>" <?php selected($selected_ad_id, $ad->ID); ?>>
-                        <?php echo esc_html($ad->post_title); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </p>
+    <p style="color:#646970;">
+        <?php esc_html_e('Hold Cmd/Ctrl to select multiple ads. AdCore will randomly display one ad from this placement.', 'adcore'); ?>
+    </p>
+</p>
 
         <hr>
 
@@ -140,9 +155,13 @@ final class AdCore_Placement_Meta_Box
             return;
         }
 
-        $ad_id = isset($_POST['adcore_placement_ad_id'])
-            ? absint($_POST['adcore_placement_ad_id'])
-            : 0;
+       $ad_ids = [];
+
+if (isset($_POST['adcore_placement_ad_ids']) && is_array($_POST['adcore_placement_ad_ids'])) {
+    $ad_ids = array_map('absint', wp_unslash($_POST['adcore_placement_ad_ids']));
+    $ad_ids = array_filter($ad_ids);
+    $ad_ids = array_values(array_unique($ad_ids));
+}
 
         $auto_insert = isset($_POST['adcore_auto_insert']) ? 'yes' : 'no';
 
@@ -174,7 +193,8 @@ final class AdCore_Placement_Meta_Box
             $post_type_target = 'all';
         }
 
-        update_post_meta($post_id, '_adcore_placement_ad_id', $ad_id);
+        update_post_meta($post_id, '_adcore_placement_ad_ids', $ad_ids);    
+delete_post_meta($post_id, '_adcore_placement_ad_id');
         update_post_meta($post_id, '_adcore_auto_insert', $auto_insert);
         update_post_meta($post_id, '_adcore_insert_position', $insert_position);
         update_post_meta($post_id, '_adcore_paragraph_number', $paragraph_number);

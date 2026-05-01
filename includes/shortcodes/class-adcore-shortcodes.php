@@ -37,13 +37,36 @@ final class AdCore_Shortcodes
             return '';
         }
 
-        $ad_id = (int) get_post_meta($placement_id, '_adcore_placement_ad_id', true);
+        $ad_ids = self::get_placement_ad_ids($placement_id);
 
-        if (!$ad_id) {
+        if (empty($ad_ids)) {
             return '';
         }
 
-        return AdCore_Renderer::render($ad_id);
+        shuffle($ad_ids);
+
+        foreach ($ad_ids as $ad_id) {
+            $output = AdCore_Renderer::render((int) $ad_id);
+
+            if ($output) {
+                return $output;
+            }
+        }
+
+        return '';
+    }
+
+    private static function get_placement_ad_ids(int $placement_id): array
+    {
+        $ad_ids = get_post_meta($placement_id, '_adcore_placement_ad_ids', true);
+
+        if (is_array($ad_ids)) {
+            return array_values(array_filter(array_map('absint', $ad_ids)));
+        }
+
+        $legacy_ad_id = (int) get_post_meta($placement_id, '_adcore_placement_ad_id', true);
+
+        return $legacy_ad_id ? [$legacy_ad_id] : [];
     }
 
     private static function placement_matches_targeting(int $placement_id): bool
