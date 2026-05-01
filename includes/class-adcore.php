@@ -23,16 +23,20 @@ final class AdCore
         $this->init_hooks();
     }
 
-    private function includes(): void
-    {
-        require_once ADCORE_PLUGIN_DIR . 'includes/post-types/class-adcore-ad-post-type.php';
-        require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-ad-meta-box.php';
-        require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-renderer.php';
-        require_once ADCORE_PLUGIN_DIR . 'includes/shortcodes/class-adcore-shortcodes.php';
-        require_once ADCORE_PLUGIN_DIR . 'includes/post-types/class-adcore-placement-post-type.php';
-        require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-placement-meta-box.php';
-        require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-content-inserter.php';
-    }
+ private function includes(): void
+{
+    require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-tracking.php';
+    require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-renderer.php';
+    require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-content-inserter.php';
+
+    require_once ADCORE_PLUGIN_DIR . 'includes/shortcodes/class-adcore-shortcodes.php';
+
+    require_once ADCORE_PLUGIN_DIR . 'includes/post-types/class-adcore-ad-post-type.php';
+    require_once ADCORE_PLUGIN_DIR . 'includes/post-types/class-adcore-placement-post-type.php';
+
+    require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-ad-meta-box.php';
+    require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-placement-meta-box.php';
+}
 
     private function init_hooks(): void
     {

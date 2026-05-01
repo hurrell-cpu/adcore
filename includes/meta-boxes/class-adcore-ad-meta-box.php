@@ -126,8 +126,13 @@ final class AdCore_Ad_Meta_Box
             />
         </div>
 
+        <p>
+            <strong>Impressions:</strong>
+            <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_impressions', true)); ?>
+        </p>
+
         <?php
-    }
+        }
 
     public static function save(int $post_id): void
     {

@@ -36,8 +36,10 @@ final class AdCore_Renderer
         }
 
         if (!$output) {
-            return '';
+    return '';
         }
+
+        AdCore_Tracking::record_impression($ad_id);
 
         return sprintf(
             '<div class="adcore-ad adcore-ad-%d" data-adcore-ad-id="%d">%s</div>',
