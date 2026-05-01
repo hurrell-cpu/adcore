@@ -27,6 +27,7 @@ final class AdCore
     {
         require_once ADCORE_PLUGIN_DIR . 'includes/post-types/class-adcore-ad-post-type.php';
         require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-ad-meta-box.php';
+        require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-renderer.php';
     }
 
     private function init_hooks(): void
