@@ -31,6 +31,7 @@ final class AdCore
         require_once ADCORE_PLUGIN_DIR . 'includes/shortcodes/class-adcore-shortcodes.php';
         require_once ADCORE_PLUGIN_DIR . 'includes/post-types/class-adcore-placement-post-type.php';
         require_once ADCORE_PLUGIN_DIR . 'includes/meta-boxes/class-adcore-placement-meta-box.php';
+        require_once ADCORE_PLUGIN_DIR . 'includes/class-adcore-content-inserter.php';
     }
 
     private function init_hooks(): void
@@ -43,6 +44,8 @@ final class AdCore
 
     add_action('add_meta_boxes_adcore_placement', ['AdCore_Placement_Meta_Box', 'add']);
     add_action('save_post_adcore_placement', ['AdCore_Placement_Meta_Box', 'save']);
+
+    add_action('wp', ['AdCore_Content_Inserter', 'init']);
     }
 
     public function register_post_types(): void
