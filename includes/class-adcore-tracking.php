@@ -9,6 +9,46 @@ final class AdCore_Tracking
     public static function init(): void
     {
         add_action('template_redirect', [self::class, 'handle_click_redirect']);
+
+        add_action('wp_ajax_adcore_record_impression', [self::class, 'ajax_record_impression']);
+        add_action('wp_ajax_nopriv_adcore_record_impression', [self::class, 'ajax_record_impression']);
+
+        add_action('wp_enqueue_scripts', [self::class, 'enqueue_scripts']);
+    }
+
+    public static function enqueue_scripts(): void
+    {
+        wp_enqueue_script(
+            'adcore-frontend',
+            ADCORE_PLUGIN_URL . 'assets/js/adcore-frontend.js',
+            [],
+            ADCORE_VERSION,
+            true
+        );
+
+        wp_localize_script('adcore-frontend', 'adcoreFrontend', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('adcore_impression_nonce'),
+        ]);
+    }
+
+    public static function ajax_record_impression(): void
+    {
+        check_ajax_referer('adcore_impression_nonce', 'nonce');
+
+        $ad_id = isset($_POST['ad_id']) ? absint($_POST['ad_id']) : 0;
+
+        if (!$ad_id || get_post_type($ad_id) !== 'adcore_ad') {
+            wp_send_json_error([
+                'message' => 'Invalid ad ID.',
+            ]);
+        }
+
+        self::record_impression($ad_id);
+
+        wp_send_json_success([
+            'message' => 'Impression recorded.',
+        ]);
     }
 
     public static function record_impression(int $ad_id): void
@@ -18,6 +58,7 @@ final class AdCore_Tracking
         }
 
         $impressions = (int) get_post_meta($ad_id, '_adcore_impressions', true);
+
         update_post_meta($ad_id, '_adcore_impressions', $impressions + 1);
     }
 
@@ -28,6 +69,7 @@ final class AdCore_Tracking
         }
 
         $clicks = (int) get_post_meta($ad_id, '_adcore_clicks', true);
+
         update_post_meta($ad_id, '_adcore_clicks', $clicks + 1);
     }
 
