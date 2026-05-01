@@ -42,6 +42,7 @@ final class AdCore
     {
     add_action('init', [$this, 'register_post_types']);
     add_action('init', ['AdCore_Shortcodes', 'register']);
+    add_action('init', ['AdCore_Tracking', 'init']);
 
     add_action('add_meta_boxes_adcore_ad', ['AdCore_Ad_Meta_Box', 'add']);
     add_action('save_post_adcore_ad', ['AdCore_Ad_Meta_Box', 'save']);

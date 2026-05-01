@@ -65,9 +65,11 @@ final class AdCore_Renderer
             return $image;
         }
 
+        $tracking_url = AdCore_Tracking::get_tracking_url($ad_id);
+
         return sprintf(
             '<a href="%s" target="_blank" rel="nofollow sponsored noopener">%s</a>',
-            esc_url($destination_url),
+            esc_url($tracking_url),
             $image
         );
     }

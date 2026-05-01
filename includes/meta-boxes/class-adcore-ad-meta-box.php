@@ -126,9 +126,28 @@ final class AdCore_Ad_Meta_Box
             />
         </div>
 
+        <hr>
+
         <p>
             <strong>Impressions:</strong>
             <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_impressions', true)); ?>
+        </p>
+
+        <p>
+            <strong>Clicks:</strong>
+            <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_clicks', true)); ?>
+        </p>
+
+        <p>
+            <strong>CTR:</strong>
+            <?php
+            $impressions = (int) get_post_meta($post->ID, '_adcore_impressions', true);
+            $clicks = (int) get_post_meta($post->ID, '_adcore_clicks', true);
+
+            $ctr = $impressions > 0 ? ($clicks / $impressions) * 100 : 0;
+
+            echo esc_html(number_format($ctr, 2) . '%');
+            ?>
         </p>
 
         <?php
