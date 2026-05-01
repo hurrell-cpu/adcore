@@ -28,11 +28,3 @@ register_activation_hook(__FILE__, ['AdCore', 'activate']);
 register_deactivation_hook(__FILE__, ['AdCore', 'deactivate']);
 
 adcore();
-
-add_shortcode('adcore', function ($atts) {
-    $atts = shortcode_atts([
-        'id' => 0,
-    ], $atts);
-
-    return AdCore_Renderer::render((int) $atts['id']);
-});
