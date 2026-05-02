@@ -14,6 +14,8 @@ final class AdCore_Tracking
         add_action('wp_ajax_nopriv_adcore_record_impression', [self::class, 'ajax_record_impression']);
 
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_scripts']);
+
+        add_action('admin_post_adcore_reset_stats', [self::class, 'handle_reset_stats']);
     }
 
    public static function enqueue_scripts(): void
@@ -122,6 +124,26 @@ final class AdCore_Tracking
         self::record_click($ad_id);
 
         wp_redirect(esc_url_raw($destination_url));
+        exit;
+    }
+   public static function handle_reset_stats(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have permission to reset stats.', 'adcore'));
+        }
+
+        $ad_id = isset($_GET['ad_id']) ? absint($_GET['ad_id']) : 0;
+
+        if (!$ad_id || get_post_type($ad_id) !== 'adcore_ad') {
+            wp_die(__('Invalid ad.', 'adcore'));
+        }
+
+        check_admin_referer('adcore_reset_stats_' . $ad_id);
+
+        delete_post_meta($ad_id, '_adcore_impressions');
+        delete_post_meta($ad_id, '_adcore_clicks');
+
+        wp_safe_redirect(get_edit_post_link($ad_id, 'raw'));
         exit;
     }
 }

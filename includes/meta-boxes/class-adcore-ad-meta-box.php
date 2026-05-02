@@ -169,27 +169,43 @@ final class AdCore_Ad_Meta_Box
 
         <hr>
 
-        <p>
-            <strong>Impressions:</strong>
-            <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_impressions', true)); ?>
-        </p>
+        <hr>
 
-        <p>
-            <strong>Clicks:</strong>
-            <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_clicks', true)); ?>
-        </p>
+<h3><?php esc_html_e('Stats', 'adcore'); ?></h3>
 
-        <p>
-            <strong>CTR:</strong>
-            <?php
-            $impressions = (int) get_post_meta($post->ID, '_adcore_impressions', true);
-            $clicks = (int) get_post_meta($post->ID, '_adcore_clicks', true);
+<p>
+    <strong><?php esc_html_e('Impressions:', 'adcore'); ?></strong>
+    <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_impressions', true)); ?>
+</p>
 
-            $ctr = $impressions > 0 ? ($clicks / $impressions) * 100 : 0;
+<p>
+    <strong><?php esc_html_e('Clicks:', 'adcore'); ?></strong>
+    <?php echo esc_html((int) get_post_meta($post->ID, '_adcore_clicks', true)); ?>
+</p>
 
-            echo esc_html(number_format($ctr, 2) . '%');
-            ?>
-        </p>
+<p>
+    <strong><?php esc_html_e('CTR:', 'adcore'); ?></strong>
+    <?php
+    $impressions = (int) get_post_meta($post->ID, '_adcore_impressions', true);
+    $clicks      = (int) get_post_meta($post->ID, '_adcore_clicks', true);
+    $ctr         = $impressions > 0 ? ($clicks / $impressions) * 100 : 0;
+
+    echo esc_html(number_format($ctr, 2) . '%');
+    ?>
+</p>
+
+<p>
+    <a
+        href="<?php echo esc_url(wp_nonce_url(
+            admin_url('admin-post.php?action=adcore_reset_stats&ad_id=' . $post->ID),
+            'adcore_reset_stats_' . $post->ID
+        )); ?>"
+        class="button button-secondary"
+        onclick="return confirm('Are you sure you want to reset stats for this ad?');"
+    >
+        <?php esc_html_e('Reset Stats', 'adcore'); ?>
+    </a>
+</p>
 
         <?php
         }
