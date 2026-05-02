@@ -9,6 +9,7 @@ final class AdCore_Dashboard
     public static function init(): void
     {
         add_action('admin_menu', [self::class, 'register_menu']);
+        add_action('admin_post_adcore_export_stats_csv', [self::class, 'export_csv']);
     }
 
     public static function register_menu(): void
@@ -23,12 +24,8 @@ final class AdCore_Dashboard
         );
     }
 
-    public static function render(): void
+    private static function get_stats(): array
     {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
-
         $ads = get_posts([
             'post_type'      => 'adcore_ad',
             'post_status'    => 'publish',
@@ -63,10 +60,83 @@ final class AdCore_Dashboard
         $average_ctr = $total_impressions > 0
             ? ($total_clicks / $total_impressions) * 100
             : 0;
+
+        return [
+            'total_impressions' => $total_impressions,
+            'total_clicks'      => $total_clicks,
+            'average_ctr'       => $average_ctr,
+            'rows'              => $rows,
+        ];
+    }
+
+    public static function export_csv(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to export AdCore stats.', 'adcore'));
+        }
+
+        check_admin_referer('adcore_export_stats_csv');
+
+        $stats    = self::get_stats();
+        $filename = 'adcore-stats-' . gmdate('Y-m-d') . '.csv';
+
+        nocache_headers();
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+
+        if ($output === false) {
+            wp_die(esc_html__('Unable to create CSV export.', 'adcore'));
+        }
+
+        fputcsv($output, ['AdCore Stats Export']);
+        fputcsv($output, ['Generated At', gmdate('Y-m-d H:i:s') . ' UTC']);
+        fputcsv($output, []);
+        fputcsv($output, ['Total Impressions', $stats['total_impressions']]);
+        fputcsv($output, ['Total Clicks', $stats['total_clicks']]);
+        fputcsv($output, ['Average CTR', number_format((float) $stats['average_ctr'], 2) . '%']);
+        fputcsv($output, []);
+        fputcsv($output, ['Ad ID', 'Ad Title', 'Impressions', 'Clicks', 'CTR']);
+
+        foreach ($stats['rows'] as $row) {
+            fputcsv($output, [
+                $row['id'],
+                $row['title'],
+                $row['impressions'],
+                $row['clicks'],
+                number_format((float) $row['ctr'], 2) . '%',
+            ]);
+        }
+
+        fclose($output);
+        exit;
+    }
+
+    public static function render(): void
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        $stats             = self::get_stats();
+        $total_impressions = $stats['total_impressions'];
+        $total_clicks      = $stats['total_clicks'];
+        $average_ctr       = $stats['average_ctr'];
+        $rows              = $stats['rows'];
         ?>
 
         <div class="wrap">
             <h1><?php esc_html_e('AdCore Dashboard', 'adcore'); ?></h1>
+
+            <p>
+                <a
+                    class="button button-secondary"
+                    href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=adcore_export_stats_csv'), 'adcore_export_stats_csv')); ?>"
+                >
+                    <?php esc_html_e('Export CSV', 'adcore'); ?>
+                </a>
+            </p>
 
             <style>
                 .adcore-dashboard-cards {
