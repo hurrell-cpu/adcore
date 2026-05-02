@@ -29,7 +29,8 @@ final class AdCore_Ad_Meta_Box
         $status          = get_post_meta($post->ID, '_adcore_status', true) ?: 'active';
         $start_date      = get_post_meta($post->ID, '_adcore_start_date', true);
         $end_date        = get_post_meta($post->ID, '_adcore_end_date', true);
-        $ad_weight = get_post_meta($post->ID, '_adcore_ad_weight', true) ?: 1;
+        $ad_weight       = get_post_meta($post->ID, '_adcore_ad_weight', true) ?: 1;
+        $frequency_cap   = get_post_meta($post->ID, '_adcore_frequency_cap', true) ?: 0;
         ?>
 
         <style>
@@ -132,6 +133,20 @@ final class AdCore_Ad_Meta_Box
     <p class="adcore-help">Higher numbers make this ad appear more often in rotating placements.</p>
 </div>
 
+<div class="adcore-field">
+    <label for="adcore_frequency_cap"><?php esc_html_e('Frequency Cap', 'adcore'); ?></label>
+    <input
+        type="number"
+        id="adcore_frequency_cap"
+        name="adcore_frequency_cap"
+        value="<?php echo esc_attr($frequency_cap); ?>"
+        min="0"
+        max="100"
+        step="1"
+    />
+    <p class="adcore-help">Maximum times this ad can appear per visitor session. Use 0 for unlimited.</p>
+</div>
+
         <div class="adcore-field">
             <label for="adcore_start_date"><?php esc_html_e('Start Date', 'adcore'); ?></label>
             <input
@@ -228,11 +243,17 @@ final class AdCore_Ad_Meta_Box
 
         update_post_meta($post_id, '_adcore_ad_size', $ad_size);
 
-        $ad_weight = isset($_POST['adcore_ad_weight'])
-    ? max(1, min(100, absint($_POST['adcore_ad_weight'])))
-    : 1;
+            $ad_weight = isset($_POST['adcore_ad_weight'])
+            ? max(1, min(100, absint($_POST['adcore_ad_weight'])))
+            : 1;
 
-update_post_meta($post_id, '_adcore_ad_weight', $ad_weight);
+        update_post_meta($post_id, '_adcore_ad_weight', $ad_weight);
+
+        $frequency_cap = isset($_POST['adcore_frequency_cap'])
+            ? max(0, min(100, absint($_POST['adcore_frequency_cap'])))
+            : 0;
+
+        update_post_meta($post_id, '_adcore_frequency_cap', $frequency_cap);
 
         update_post_meta(
             $post_id,

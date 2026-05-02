@@ -25,6 +25,7 @@ final class AdCore_Renderer
         $image_url       = get_post_meta($ad_id, '_adcore_image_url', true);
         $html_code       = get_post_meta($ad_id, '_adcore_html_code', true);
         $destination_url = get_post_meta($ad_id, '_adcore_destination_url', true);
+        $frequency_cap = (int) get_post_meta($ad_id, '_adcore_frequency_cap', true);
 
         $output = '';
 
@@ -47,10 +48,11 @@ if (!in_array($ad_size, $allowed_sizes, true)) {
 }
 
 return sprintf(
-    '<div class="adcore-ad adcore-ad-%d adcore-ad-size-%s" data-adcore-ad-id="%d"><div class="adcore-ad-inner">%s</div></div>',
+    '<div class="adcore-ad adcore-ad-%d adcore-ad-size-%s" data-adcore-ad-id="%d" data-adcore-frequency-cap="%d"><div class="adcore-ad-inner">%s</div></div>',
     esc_attr($ad_id),
     esc_attr($ad_size),
     esc_attr($ad_id),
+    esc_attr($frequency_cap),
     $output
 );
     }

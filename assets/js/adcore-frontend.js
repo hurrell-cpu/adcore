@@ -1,4 +1,39 @@
 (function () {
+    function getSessionKey(adId) {
+        return 'adcore_ad_views_' + adId;
+    }
+
+    function getSessionViews(adId) {
+        var value = sessionStorage.getItem(getSessionKey(adId));
+        return value ? parseInt(value, 10) || 0 : 0;
+    }
+
+    function incrementSessionViews(adId) {
+        var views = getSessionViews(adId);
+        sessionStorage.setItem(getSessionKey(adId), String(views + 1));
+    }
+
+    function isFrequencyCapped(ad) {
+        var adId = ad.getAttribute('data-adcore-ad-id');
+        var cap = parseInt(ad.getAttribute('data-adcore-frequency-cap'), 10) || 0;
+
+        if (!cap) {
+            return false;
+        }
+
+        return getSessionViews(adId) >= cap;
+    }
+
+    function hideCappedAds() {
+        var ads = document.querySelectorAll('.adcore-ad[data-adcore-ad-id]');
+
+        ads.forEach(function (ad) {
+            if (isFrequencyCapped(ad)) {
+                ad.style.display = 'none';
+            }
+        });
+    }
+
     function sendImpression(adId) {
         if (!adId || !window.adcoreFrontend) {
             return;
@@ -19,6 +54,8 @@
     }
 
     function initAdcoreImpressions() {
+        hideCappedAds();
+
         var ads = document.querySelectorAll('.adcore-ad[data-adcore-ad-id]');
 
         if (!ads.length) {
@@ -34,6 +71,13 @@
                 }
 
                 var ad = entry.target;
+
+                if (isFrequencyCapped(ad)) {
+                    ad.style.display = 'none';
+                    observer.unobserve(ad);
+                    return;
+                }
+
                 var adId = ad.getAttribute('data-adcore-ad-id');
 
                 if (seenAds.has(adId)) {
@@ -41,6 +85,7 @@
                 }
 
                 seenAds.add(adId);
+                incrementSessionViews(adId);
                 sendImpression(adId);
                 observer.unobserve(ad);
             });
@@ -49,7 +94,9 @@
         });
 
         ads.forEach(function (ad) {
-            observer.observe(ad);
+            if (!isFrequencyCapped(ad)) {
+                observer.observe(ad);
+            }
         });
     }
 
